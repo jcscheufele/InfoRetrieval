@@ -10,6 +10,8 @@
 # first, create a student object
 # ########################################
 
+import re
+import glob
 import cs547
 import PorterStemmer
 
@@ -47,6 +49,13 @@ class Index(object):
         # _inverted_index contains terms as keys, with the values as a list of
         # document indexes containing that term
         self._inverted_index = {}
+        # self._inverted_index = {
+        #       'mike': [0,1],
+        #       'football': [0],
+        #       'sherman': [0],
+        #       'cat': [1],
+        #       'slept': [1]
+        #       }
         # _documents contains file names of documents
         self._documents = []
         # example:
@@ -74,6 +83,16 @@ class Index(object):
     #     directory of text files to be indexed
     def index_dir(self, base_path):
         num_files_indexed = 0
+        self._documents = glob.glob(base_path+"/*.txt")
+        num_files_indexed = len(self._documents)
+
+        
+        tokens = []
+        for doc in self._documents:
+            with open(doc, 'r') as file:
+                for line in file.readlines():
+                    tokens += self.stemming(self.tokenize(line))
+        
         # PUT YOUR CODE HERE
         return num_files_indexed
 
@@ -87,7 +106,8 @@ class Index(object):
     #   text - a string of terms
     def tokenize(self, text):
         tokens = []
-        # PUT YOUR CODE HERE
+        tokens = re.sub('[^0-9a-zA-Z]+', ' ', text.lower())
+        print(tokens, tokens.split())
         return tokens
 
     # purpose: convert a string of terms into a list of tokens.        
@@ -98,7 +118,7 @@ class Index(object):
     #   tokens - a list of tokens
     def stemming(self, tokens):
         stemmed_tokens = []
-        # PUT YOUR CODE HERE
+        stemmed_tokens = PorterStemmer.main(tokens)
         return stemmed_tokens
     
     # boolean_search( text )
@@ -112,7 +132,34 @@ class Index(object):
     #   text - a string of terms
     def boolean_search(self, text):
         results = []
-        # PUT YOUR CODE HERE
+
+        queryTerms = []
+        isAND = False
+        isOR = False
+        if "OR" in text: queryTerms = text.split(" OR "); isOR = True
+        elif "AND" in text: queryTerms = text.split(" AND "); isAND = True
+        else: queryTerms = text.split(" ")
+
+        keys = self._inverted_index.keys()
+
+        if not (isAND or isOR):
+            if queryTerms[0] in keys:
+                results += [self._documents[i] for i in self._inverted_index[queryTerms[0]]]
+        else:
+            if isAND:
+                if queryTerms[0] in keys and queryTerms[1] in keys:
+                    one = set(self._documents[i] for i in self._inverted_index[queryTerms[0]])
+                    two = set(self._documents[i] for i in self._inverted_index[queryTerms[1]])
+                    results += list(one and two)
+            else:
+                one = set()
+                two = set()
+                if queryTerms[0] in keys:
+                    one = set(self._documents[i] for i in self._inverted_index[queryTerms[0]])
+                if queryTerms[1] in keys:
+                    two = set(self._documents[i] for i in self._inverted_index[queryTerms[1]])
+                results += list(one or two)
+
         return results
     
 
