@@ -10,6 +10,7 @@
 # first, create a student object
 # ########################################
 
+from itertools import product
 import re
 import glob
 import cs547
@@ -84,16 +85,27 @@ class Index(object):
     def index_dir(self, base_path):
         num_files_indexed = 0
         self._documents = glob.glob(base_path+"/*.txt")
+        #self._documents = ['data\\00.txt', 'data\\10.txt']
         num_files_indexed = len(self._documents)
 
-        
-        tokens = []
         for doc in self._documents:
-            with open(doc, 'r') as file:
+            with open(doc, 'r', encoding="UTF-8") as file:
                 for line in file.readlines():
-                    tokens += self.stemming(self.tokenize(line))
-        
-        # PUT YOUR CODE HERE
+                    tokens = []
+                    if line != '':
+                        tokens = self.stemming(self.tokenize(line))
+                    #print(tokens)
+                    for token in tokens:
+                        if token != '':
+                            #print(token, self._inverted_index.keys())
+                            if not(token in self._inverted_index.keys()):
+                                self._inverted_index[token] = [doc]
+                            else:
+                                #print(self._inverted_index[token])
+                                if not(doc in self._inverted_index[token]):
+                                    self._inverted_index[token] = self._inverted_index[token] + [doc]
+
+        #print(self._inverted_index)
         return num_files_indexed
 
     # tokenize( text )
@@ -107,8 +119,8 @@ class Index(object):
     def tokenize(self, text):
         tokens = []
         tokens = re.sub('[^0-9a-zA-Z]+', ' ', text.lower())
-        print(tokens, tokens.split())
-        return tokens
+        #print(tokens, tokens.split())
+        return tokens.split()
 
     # purpose: convert a string of terms into a list of tokens.        
     # convert a list of tokens to a list of stemmed tokens,     
@@ -118,7 +130,21 @@ class Index(object):
     #   tokens - a list of tokens
     def stemming(self, tokens):
         stemmed_tokens = []
-        stemmed_tokens = PorterStemmer.main(tokens)
+        p = PorterStemmer.PorterStemmer()
+        
+        for token in tokens:
+            #print(token)
+            output = ''
+            word = ''
+            for i in range(len(token)):
+                word += token[i].lower()
+                #print("word", word)
+            if word:
+                #print(word)
+                output += p.stem(word, 0,len(word)-1)
+                #print("Out", output)
+            #print(output)
+            stemmed_tokens.append(output)
         return stemmed_tokens
     
     # boolean_search( text )
@@ -132,33 +158,55 @@ class Index(object):
     #   text - a string of terms
     def boolean_search(self, text):
         results = []
-
         queryTerms = []
+
+        #print("search term", text)
+
+        textTokens = self.tokenize(text)
+
         isAND = False
         isOR = False
-        if "OR" in text: queryTerms = text.split(" OR "); isOR = True
-        elif "AND" in text: queryTerms = text.split(" AND "); isAND = True
-        else: queryTerms = text.split(" ")
+        if "or" in textTokens:
+            queryTerms = [i for i in textTokens if "or" not in i]
+            isOR = True
+        elif "and" in textTokens:
+            queryTerms = [i for i in textTokens if "and" not in i]
+            isAND = True
+        else: 
+            if " " in text:
+                queryTerms = textTokens
+            else:
+                queryTerms = textTokens
 
-        keys = self._inverted_index.keys()
+        queryTerms = self.stemming(queryTerms)
+
+        #print("Queryterms", queryTerms[0])
+
+        keys = list(self._inverted_index.keys())
+
+        #print("keys", keys)
+
+        #print(isAND, isOR)
 
         if not (isAND or isOR):
             if queryTerms[0] in keys:
-                results += [self._documents[i] for i in self._inverted_index[queryTerms[0]]]
+                #print('QueryTerms are found', queryTerms[0])
+                #print(self._inverted_index[queryTerms[0]])
+                results = self._inverted_index[queryTerms[0]]
         else:
             if isAND:
-                if queryTerms[0] in keys and queryTerms[1] in keys:
-                    one = set(self._documents[i] for i in self._inverted_index[queryTerms[0]])
-                    two = set(self._documents[i] for i in self._inverted_index[queryTerms[1]])
-                    results += list(one and two)
+                if (queryTerms[0] in keys) and (queryTerms[1] in keys):
+                    one = set(self._inverted_index[queryTerms[0]])
+                    two = set(self._inverted_index[queryTerms[1]])
+                    results = list(one.intersection(two))
             else:
                 one = set()
                 two = set()
-                if queryTerms[0] in keys:
-                    one = set(self._documents[i] for i in self._inverted_index[queryTerms[0]])
-                if queryTerms[1] in keys:
-                    two = set(self._documents[i] for i in self._inverted_index[queryTerms[1]])
-                results += list(one or two)
+                if (queryTerms[0] in keys):
+                    one = set(self._inverted_index[queryTerms[0]])
+                if (queryTerms[1] in keys):
+                    two = set(self._inverted_index[queryTerms[1]])
+                results = list(one.union(two))
 
         return results
     
