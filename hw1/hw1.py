@@ -9,8 +9,6 @@
 # ########################################
 # first, create a student object
 # ########################################
-
-from itertools import product
 import re
 import glob
 import cs547
@@ -106,7 +104,7 @@ class Index(object):
                                 if not(doc_num in self._inverted_index[token]):
                                     self._inverted_index[token] = self._inverted_index[token] + [doc_num]
 
-        print(self._inverted_index)
+        #print(self._inverted_index)
         return num_files_indexed
 
     # tokenize( text )
