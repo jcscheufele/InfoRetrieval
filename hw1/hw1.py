@@ -89,6 +89,7 @@ class Index(object):
         num_files_indexed = len(self._documents)
 
         for doc in self._documents:
+            doc_num = int(doc.split("\\")[1].split(".")[0][1])-1
             with open(doc, 'r', encoding="UTF-8") as file:
                 for line in file.readlines():
                     tokens = []
@@ -99,13 +100,13 @@ class Index(object):
                         if token != '':
                             #print(token, self._inverted_index.keys())
                             if not(token in self._inverted_index.keys()):
-                                self._inverted_index[token] = [doc]
+                                self._inverted_index[token] = [doc_num]
                             else:
                                 #print(self._inverted_index[token])
-                                if not(doc in self._inverted_index[token]):
-                                    self._inverted_index[token] = self._inverted_index[token] + [doc]
+                                if not(doc_num in self._inverted_index[token]):
+                                    self._inverted_index[token] = self._inverted_index[token] + [doc_num]
 
-        #print(self._inverted_index)
+        print(self._inverted_index)
         return num_files_indexed
 
     # tokenize( text )
@@ -192,20 +193,20 @@ class Index(object):
             if queryTerms[0] in keys:
                 #print('QueryTerms are found', queryTerms[0])
                 #print(self._inverted_index[queryTerms[0]])
-                results = self._inverted_index[queryTerms[0]]
+                results = [self._documents[i] for i in self._inverted_index[queryTerms[0]]]
         else:
             if isAND:
                 if (queryTerms[0] in keys) and (queryTerms[1] in keys):
-                    one = set(self._inverted_index[queryTerms[0]])
-                    two = set(self._inverted_index[queryTerms[1]])
+                    one = set(self._documents[i] for i in self._inverted_index[queryTerms[0]])
+                    two = set(self._documents[i] for i in self._inverted_index[queryTerms[1]])
                     results = list(one.intersection(two))
             else:
                 one = set()
                 two = set()
                 if (queryTerms[0] in keys):
-                    one = set(self._inverted_index[queryTerms[0]])
+                    one = set(self._documents[i] for i in self._inverted_index[queryTerms[0]])
                 if (queryTerms[1] in keys):
-                    two = set(self._inverted_index[queryTerms[1]])
+                    two = set(self._documents[i] for i in self._inverted_index[queryTerms[1]])
                 results = list(one.union(two))
 
         return results
