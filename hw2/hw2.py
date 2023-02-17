@@ -22,8 +22,6 @@ MY_EMAIL = "jcscheufele@wpi.edu"
 # the COLLABORATORS list contains tuples of 2 items, the name of the helper
 # and their contribution to your homework
 COLLABORATORS = [ 
-    ('Bob Lee', 'helped me learn Python'),
-    ('Brown Cheng', 'gave me coffee during office hours'),
     ]
 
 # Set the I_AGREE_HONOR_CODE to True if you agree with the following statement
@@ -151,7 +149,27 @@ class BetterIndex(object):
     #   text - a string of terms
     def wildcard_search_or(self, text):
         # FILL OUT CODE HERE
-        return []
+
+        tokens = self.tokenize(text, True)
+
+        print("Token", tokens)
+
+        searchTerms = []
+
+        for token in tokens:
+            term = [self._rotate(token)]
+            print("Rotated Term", term)
+            searchTerms += term
+
+        print("Search Terms", searchTerms)
+
+        list = []
+        for term in searchTerms:
+            print("Term: ", term)
+            list.append(crawl_tree(self._bt.root, term))
+            print("List: ", list)
+
+        return [self._documents[i] for i in set.union(*list)]
 
 
     # wildcard_search_and( text )
@@ -163,7 +181,27 @@ class BetterIndex(object):
     #   text - a string of terms
     def wildcard_search_and(self, text):
         # FILL OUT CODE HERE
-        return []
+
+        tokens = self.tokenize(text, True)
+
+        print("Token", tokens)
+
+        searchTerms = []
+
+        for token in tokens:
+            term = [self._rotate(token)]
+            print("Rotated Term", term)
+            searchTerms += term
+
+        print("Search Terms", searchTerms)
+
+        list = []
+        for term in searchTerms:
+            print("Term: ", term)
+            list.append(crawl_tree(self._bt.root, term))
+            print("List: ", list)
+
+        return [self._documents[i] for i in set.intersection(*list)]
 
 
 # now, we'll define our main function which actually starts the indexer and
@@ -173,14 +211,17 @@ def main(args):
     index = BetterIndex()
     print("starting indexer")
     num_files = index.index_dir('data/')
-    #print index._bt.formattree()
+    print(index._bt.formattree())
     print("indexed %d files" % num_files)
+    print(index._bt.root)
+
+    print(index._bt['mike$'])
     
     for term in ('hel*o', 'aggies', 'agg*', 'mike sherm*', 'dot cat'):
         results = index.wildcard_search_or(term)
         print("OR  searching: %s -- results: %s" % (term, ", ".join(results)))
-        results = index.wildcard_search_and(term)
-        print("AND searching: %s -- results: %s" % (term, ", ".join(results)))
+        #results = index.wildcard_search_and(term)
+        #print("AND searching: %s -- results: %s" % (term, ", ".join(results)))
 
 
 # this little helper will call main() if this file is executed from the command
