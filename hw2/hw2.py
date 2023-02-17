@@ -152,22 +152,22 @@ class BetterIndex(object):
 
         tokens = self.tokenize(text, True)
 
-        print("Token", tokens)
+        #print("Token", tokens)
 
         searchTerms = []
 
         for token in tokens:
             term = [self._rotate(token)]
-            print("Rotated Term", term)
+            #print("Rotated Term", term)
             searchTerms += term
 
-        print("Search Terms", searchTerms)
+        #print("Search Terms", searchTerms)
 
         list = []
         for term in searchTerms:
-            print("Term: ", term)
+            #print("Term: ", term)
             list.append(crawl_tree(self._bt.root, term))
-            print("List: ", list)
+            #print("List: ", list)
 
         return [self._documents[i] for i in set.union(*list)]
 
@@ -184,22 +184,22 @@ class BetterIndex(object):
 
         tokens = self.tokenize(text, True)
 
-        print("Token", tokens)
+        #print("Token", tokens)
 
         searchTerms = []
 
         for token in tokens:
             term = [self._rotate(token)]
-            print("Rotated Term", term)
+            #print("Rotated Term", term)
             searchTerms += term
 
-        print("Search Terms", searchTerms)
+        #print("Search Terms", searchTerms)
 
         list = []
         for term in searchTerms:
-            print("Term: ", term)
+            #print("Term: ", term)
             list.append(crawl_tree(self._bt.root, term))
-            print("List: ", list)
+            #print("List: ", list)
 
         return [self._documents[i] for i in set.intersection(*list)]
 
@@ -209,19 +209,19 @@ class BetterIndex(object):
 def main(args):
     print(student)
     index = BetterIndex()
-    print("starting indexer")
+    #print("starting indexer")
     num_files = index.index_dir('data/')
-    print(index._bt.formattree())
-    print("indexed %d files" % num_files)
-    print(index._bt.root)
+    #print(index._bt.formattree())
+    #print("indexed %d files" % num_files)
+    #print(index._bt.root)
 
-    print(index._bt['mike$'])
+    #print(index._bt['mike$'])
     
     for term in ('hel*o', 'aggies', 'agg*', 'mike sherm*', 'dot cat'):
         results = index.wildcard_search_or(term)
         print("OR  searching: %s -- results: %s" % (term, ", ".join(results)))
-        #results = index.wildcard_search_and(term)
-        #print("AND searching: %s -- results: %s" % (term, ", ".join(results)))
+        results = index.wildcard_search_and(term)
+        print("AND searching: %s -- results: %s" % (term, ", ".join(results)))
 
 
 # this little helper will call main() if this file is executed from the command
