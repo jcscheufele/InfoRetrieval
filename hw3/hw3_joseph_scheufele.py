@@ -11,20 +11,17 @@
 # ########################################
 
 import cs547
-MY_NAME = "Your Name"
-MY_ANUM  = 00000000 # put your UID here
-MY_EMAIL = "somewhere@wpi.ed"
+MY_NAME = "Joseph Scheufele"
+MY_ANUM  = 361589387 # put your UID here
+MY_EMAIL = "jcscheufele@wpi.edu"
 
 # the COLLABORATORS list contains tuples of 2 items, the name of the helper
 # and their contribution to your homework
-COLLABORATORS = [ 
-    ('Bob Lee', 'helped me learn Python'),
-    ('Brown Cheng', 'gave me coffee during office hours'),
-    ]
+COLLABORATORS = []
 
 # Set the I_AGREE_HONOR_CODE to True if you agree with the following statement
 # "An Aggie does not lie, cheat or steal, or tolerate those who do."
-I_AGREE_HONOR_CODE = False
+I_AGREE_HONOR_CODE = True
 
 # this defines the student object
 student = cs547.Student(
